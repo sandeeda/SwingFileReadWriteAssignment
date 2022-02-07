@@ -21,6 +21,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableModel;
 
 import org.humber.covid.statistics.entity.Report;
 
@@ -34,7 +35,9 @@ public class HomePage extends JFrame {
 	JPanel fetchRecordPanel;
 	JPanel displayPanel;
 	JTable displayTable;
+	DefaultTableModel model;
 	JScrollPane recSp;
+	
 	
 	
 	JPanel modifyUpdatePanel;
@@ -83,9 +86,14 @@ public class HomePage extends JFrame {
 					
 				}
 				
+				if(e.getSource()==submitBtn) {
+					updateData();
+				}
+				
 				
 			}
 
+		
 		
 			
 		}
@@ -102,6 +110,17 @@ public class HomePage extends JFrame {
 
 		
 	}
+	
+	
+	
+	
+	private void updateData() {
+		// TODO Auto-generated method stub
+		reports.add(new Report(dateField.getText(), cityField.getText(), Integer.parseInt(pfizerField.getText()), Integer.parseInt(modernaField.getText()), Integer.parseInt(astraField.getText())));
+		model.addRow(new Object[] {dateField.getText(), cityField.getText(), Integer.parseInt(pfizerField.getText()), Integer.parseInt(modernaField.getText()), Integer.parseInt(astraField.getText())});
+		
+	}
+
 	private void showCreateUpdate() {
 		// TODO Auto-generated method stub
 		modifyUpdatePanel.setVisible(true);
@@ -164,9 +183,20 @@ public class HomePage extends JFrame {
 			records[i][4] = String.valueOf(report.getAstrazenecaDosesAdministered());
 			i++;
 		}
-		displayTable = new JTable(records, recordHeadings);
+		
+		
+		
+		 model = new DefaultTableModel(records,recordHeadings);
+		 
+		
+		
+		displayTable = new JTable(model);
+		
+		
 		recSp = new JScrollPane(displayTable);
 		recSp.setPreferredSize(new Dimension(500,200));
+		
+	
 		
 
 	}
@@ -197,11 +227,7 @@ public class HomePage extends JFrame {
 			tempReport = new Report(tempDate, tempcityName, temppfizerDosesAdmisnistered, tempmodernaDosesAdministered, tempastrazenecaDosesAdministered);
 			reports.add(tempReport);
 			
-			for (Iterator iterator = reports.iterator(); iterator.hasNext();) {
-				Report report = (Report) iterator.next();
-				System.out.println(report);
-			}
-		
+					
 		}
 		
 	}
