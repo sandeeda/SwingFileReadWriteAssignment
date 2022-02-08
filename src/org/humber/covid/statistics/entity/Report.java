@@ -1,6 +1,5 @@
 package org.humber.covid.statistics.entity;
-
-import java.util.Date;
+//Store Report data objects
 
 public class Report {
 
