@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.regex.Pattern;
+import java.util.zip.DataFormatException;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -36,6 +38,7 @@ import javax.swing.table.DefaultTableModel;
 
 import org.humber.covid.statistics.entity.City;
 import org.humber.covid.statistics.entity.Report;
+import org.humber.covid.statistics.exceptions.DateFormatException;
 
 public class HomePage extends JFrame {
 
@@ -113,11 +116,14 @@ public class HomePage extends JFrame {
 				//listener for submit button
 				if (e.getSource() == submitBtn) {
 					try {
-						updateData();
+						validateData();
 					} catch (NumberFormatException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (DataFormatException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
@@ -145,6 +151,8 @@ public class HomePage extends JFrame {
 				}
 			}
 
+		
+
 			
 
 			
@@ -159,6 +167,35 @@ public class HomePage extends JFrame {
 		createDisplayRecord();						//panel to place a jtable to display data
 		createLayout();								//pack all the panels into the frame
 
+	}
+	
+	
+	
+	private void validateData() throws NumberFormatException, IOException, DataFormatException {
+		// TODO Auto-generated method stub
+		String pfizerText;
+		String modernaText;
+		String astraText;
+		
+		pfizerText = pfizerField.getText();
+		modernaText = modernaField.getText();
+		astraText = astraField.getText();
+		try{
+			Integer.parseInt(pfizerText);
+			Integer.parseInt(astraText);
+			Integer.parseInt(modernaText);
+			if(!Pattern.matches("^(?:(?:31(\\/|-|\\.)(?:0?[13578]|1[02]))\\1|(?:(?:29|30)(\\/|-|\\.)(?:0?[13-9]|1[0-2])\\2))(?:(?:1[6-9]|[2-9]\\d)?\\d{2})$|^(?:29(\\/|-|\\.)0?2\\3(?:(?:(?:1[6-9]|[2-9]\\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\\d|2[0-8])(\\/|-|\\.)(?:(?:0?[1-9])|(?:1[0-2]))\\4(?:(?:1[6-9]|[2-9]\\d)?\\d{2})$", dateField.getText()))
+				throw new DateFormatException();
+			updateData();
+		}
+		catch(NumberFormatException e){
+			JOptionPane.showMessageDialog(null, "Please enter doses number data correctly");
+		} catch (DateFormatException e) {
+			// TODO Auto-generated catch block
+			JOptionPane.showMessageDialog(null, e.getMessage());
+		}
+		
+		
 	}
 	
 	/*
@@ -198,7 +235,7 @@ public class HomePage extends JFrame {
 		vaccineTypeData.add(panel);
 		vaccineTypeData.setSize(400,200);
 		vaccineTypeData.setVisible(true);
-		vaccineTypeData.setDefaultCloseOperation(JFrame.ABORT);
+		vaccineTypeData.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		
 		
 	}
