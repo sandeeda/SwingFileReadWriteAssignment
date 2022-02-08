@@ -1,15 +1,15 @@
 package org.humber.covid.statistics;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
+import java.awt.geom.RoundRectangle2D;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -17,7 +17,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 import java.util.zip.DataFormatException;
@@ -29,9 +28,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
@@ -74,11 +71,25 @@ public class HomePage extends JFrame {
 	JButton fetchRecordByCityButton;
 	JButton fetchRecordByVaccineTypeButton;
 
+	
+	JPanel getDataByDateAndCity;
+	JTextField inputForCity;
+	JTextField inputForDate;
+	JLabel labelForCityInput;
+	JLabel labelForDateInput;
+	JLabel resultLabel1;
+	JLabel resultLabel2;
+	JLabel resultLabel3;
+	JButton submitBtnToGetData;
+	JPanel resultHolder;
+	
 	//Action listener to catch events
 	ActionListener listener;
 	
 	//helper variables for data manipulation
 	String oldModerna,oldAstra,oldPfizer;
+	String cityName;
+	String dateOfDose;
 
 	//File object variable to read and write data to a file
 	File file;
@@ -94,8 +105,9 @@ public class HomePage extends JFrame {
 
 	public HomePage() throws FileNotFoundException, ParseException {
 
-		//setting size of the frame
-		setSize(600, 600);
+		
+		//setting size of the frame		
+		setSize(1400, 600);
 		//setting title of the frame
 		setTitle("Covid Statistics");
 		// TODO Auto-generated constructor stub
@@ -149,7 +161,16 @@ public class HomePage extends JFrame {
 				if(e.getSource()==fetchRecordByVaccineTypeButton) {
 					showTypeStats();
 				}
+				if(e.getSource()==submitBtnToGetData) {
+					try {
+						validateDataEntered();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
 			}
+
 
 		
 
@@ -165,12 +186,106 @@ public class HomePage extends JFrame {
 		createFetchRecord();						//create the panel for fetch record button
 		createUpdatePanel();						//a hidden panel where users can modify or set data
 		createDisplayRecord();						//panel to place a jtable to display data
+		createFindByDateAndCity();					//panel to find record by date and city
 		createLayout();								//pack all the panels into the frame
 
 	}
 	
 	
+	private void validateDataEntered() throws IOException {
+		// TODO Auto-generated method stub
+		
+		
+		
+		
+		cityName = inputForCity.getText();
+		dateOfDose = inputForDate.getText();
+		try{
+			if(!Pattern.matches("^(?:(?:31(\\/|-|\\.)(?:0?[13578]|1[02]))\\1|(?:(?:29|30)(\\/|-|\\.)(?:0?[13-9]|1[0-2])\\2))(?:(?:1[6-9]|[2-9]\\d)?\\d{2})$|^(?:29(\\/|-|\\.)0?2\\3(?:(?:(?:1[6-9]|[2-9]\\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\\d|2[0-8])(\\/|-|\\.)(?:(?:0?[1-9])|(?:1[0-2]))\\4(?:(?:1[6-9]|[2-9]\\d)?\\d{2})$", inputForDate.getText()))
+				throw new DateFormatException();
+			getDataByDateAndCityName();
+		}
+		catch (DateFormatException e) {
+			// TODO Auto-generated catch block
+			JOptionPane.showMessageDialog(null, e.getMessage());
+		}
+		
+	}
+
 	
+	
+	private void getDataByDateAndCityName() {
+		// TODO Auto-generated method stub
+		int flag = 0;
+		resultLabel1.setText("");
+		resultLabel2.setText("");
+		resultLabel3.setText("");
+		for (Iterator iterator = reports.iterator(); iterator.hasNext();) {
+			Report report = (Report) iterator.next();
+			if(cityName.equals(report.getCityName()))
+			{
+				flag =1;
+				if(dateOfDose.equals(report.getDate()))
+				{
+					resultLabel1.setText("Pfizer: "+ report.getPfizerDosesAdmisnistered());
+					resultLabel2.setText("Moderna: "+ report.getModernaDosesAdministered());
+					resultLabel3.setText("Astrazeneca: "+ report.getAstrazenecaDosesAdministered());
+				}
+				else
+					JOptionPane.showMessageDialog(null, "No record for this date");
+			}
+			
+			
+		}
+		if(flag == 0) {
+			JOptionPane.showMessageDialog(null, "No record for this city");
+		}
+	}
+
+
+	private void createFindByDateAndCity() {
+		// TODO Auto-generated method stub
+		/*
+		 * JPanel getDataByDateAndCity; 
+		 * JTextField inputForCity; 
+		 * JTextField inputForDate; 
+		 * JLabel labelForCityInput; 
+		 * JLabel labelForDateInput; 
+		 * JLabel resultLabel;
+		 */
+		
+		labelForCityInput = new JLabel("Enter City name");
+		labelForDateInput = new JLabel("Enter Date");
+		inputForCity = new JTextField(10);
+		inputForDate = new JTextField(10);
+		getDataByDateAndCity = new JPanel();
+		getDataByDateAndCity.setBorder(new TitledBorder(new EtchedBorder(),"Find by date and city"));
+		getDataByDateAndCity.setLayout(new GridLayout(3,2));
+		submitBtnToGetData = new JButton("GO");
+		submitBtnToGetData.addActionListener(listener);
+		resultHolder = new JPanel();
+		resultHolder.setLayout(new GridLayout(3,1));
+		resultLabel1 = new JLabel();
+		resultLabel2 = new JLabel();
+		resultLabel3 = new JLabel();
+		resultHolder.add(resultLabel1);
+		resultHolder.add(resultLabel2);
+		resultHolder.add(resultLabel3);
+		
+		getDataByDateAndCity.add(labelForCityInput);
+		getDataByDateAndCity.add(inputForCity);
+		getDataByDateAndCity.add(labelForDateInput);
+		getDataByDateAndCity.add(inputForDate);
+		getDataByDateAndCity.add(submitBtnToGetData);
+		getDataByDateAndCity.add(resultHolder);
+		
+		
+		
+		
+	}
+
+
+
 	private void validateData() throws NumberFormatException, IOException, DataFormatException {
 		// TODO Auto-generated method stub
 		String pfizerText;
@@ -541,10 +656,11 @@ public class HomePage extends JFrame {
 	private void createLayout() {
 		// TODO Auto-generated method stub
 		mainPanel = new JPanel();
-		mainPanel.setLayout(new GridLayout(1, 3));
+		mainPanel.setLayout(new GridLayout(1, 4));
 		mainPanel.add(addRecordPanel);
 		mainPanel.add(modifyRecordPanel);
 		mainPanel.add(fetchRecordPanel);
+		mainPanel.add(getDataByDateAndCity);
 
 		displayPanel = new JPanel();
 		displayPanel.setLayout(new GridLayout(1, 1));
